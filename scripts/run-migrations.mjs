@@ -36,7 +36,13 @@ const files = readdirSync(migrationsDir)
   .filter((f) => f.endsWith(".sql"))
   .sort();
 
-const client = new pg.Client({ connectionString: url, ssl: { rejectUnauthorized: false } });
+// Strip sslmode from URL — pg 8.20 treats sslmode=require as verify-full,
+// which fails on Supabase's pooler cert chain. We pass ssl config in JS instead.
+const cleanUrl = url.replace(/[?&]sslmode=[^&]*/g, "").replace(/[?&]uselibpqcompat=[^&]*/g, "");
+const client = new pg.Client({
+  connectionString: cleanUrl,
+  ssl: { rejectUnauthorized: false },
+});
 await client.connect();
 
 try {
