@@ -1,26 +1,48 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-cream: #FFFBF2;
+  --color-cream-muted: #F5EFDF;
+  --color-warm: #F0E4D0;
+  --color-orange: #FFA770;
+  --color-orange-soft: #FFE3CD;
+  --color-orange-deep: #C5873A;
+  --color-purple: #A070FF;
+  --color-purple-soft: #E6D9FF;
+  --color-purple-deep: #6B3FE0;
+  --color-ink: #1A1A2E;
+  --color-ink-muted: #7A7060;
+  --color-line: #D8D0C0;
+  --color-success: #3A7A5C;
+  --color-success-soft: #D4EDDA;
+  --color-warn-soft: #FEF3CD;
+  --color-warn-deep: #8A6000;
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), Georgia, "Times New Roman", serif;
+  --font-body: var(--font-body), ui-sans-serif, system-ui, sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-weight: 300;
+  line-height: 1.6;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .print-break-before {
+    break-before: page;
+  }
+  .print-color-exact,
+  .print-color-exact * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  body {
+    background: white;
+  }
 }
