@@ -2,10 +2,18 @@ import { createClient } from "@/lib/supabase/server";
 
 export default async function BuyerDashboard() {
   const supabase = await createClient();
-  const { data: properties, error } = await supabase
-    .from("properties")
-    .select("id, street, city, state, zip, created_at")
-    .order("created_at", { ascending: false });
+
+  // RLS scopes the buyer query to their own row.
+  const [{ data: properties, error }, { data: buyer }] = await Promise.all([
+    supabase
+      .from("properties")
+      .select("id, street, city, state, zip, created_at")
+      .order("created_at", { ascending: false }),
+    supabase.from("buyers").select("full_name").maybeSingle(),
+  ]);
+
+  const firstName = buyer?.full_name?.split(/[\s,]/)[0];
+  const propertyCount = properties?.length ?? 0;
 
   return (
     <div className="mx-auto max-w-5xl px-6 sm:px-10 py-10">
@@ -13,11 +21,12 @@ export default async function BuyerDashboard() {
         Your packets
       </p>
       <h1 className="font-display text-3xl sm:text-4xl font-semibold mb-2">
-        Properties
+        {firstName ? `Welcome, ${firstName}!` : "Welcome!"}
       </h1>
-      <p className="text-ink-muted mb-8">
-        {properties?.length ?? 0} packet
-        {(properties?.length ?? 0) === 1 ? "" : "s"} prepared for you
+      <p className="text-ink-muted mb-8 leading-relaxed max-w-2xl">
+        {propertyCount === 0
+          ? "Your agent will share property packets here as soon as they're ready. You'll get an email when something new shows up."
+          : `Here ${propertyCount === 1 ? "is the property packet" : `are the ${propertyCount} property packets`} your agent has put together for you. Click any one to dive in.`}
       </p>
 
       {error && (
@@ -26,7 +35,7 @@ export default async function BuyerDashboard() {
         </p>
       )}
 
-      {!error && (properties?.length ?? 0) === 0 ? (
+      {!error && propertyCount === 0 ? (
         <div className="bg-white border border-dashed border-line rounded-xl p-12 text-center">
           <div className="text-3xl mb-3">🏡</div>
           <h2 className="font-display text-xl mb-2">No packets yet</h2>

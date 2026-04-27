@@ -17,6 +17,7 @@ export function NewBuyerDialog() {
   const [open, setOpen] = useState(false);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [additionalEmails, setAdditionalEmails] = useState<string[]>([]);
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -25,6 +26,7 @@ export function NewBuyerDialog() {
   function reset() {
     setFullName("");
     setEmail("");
+    setAdditionalEmails([]);
     setPhone("");
     setNotes("");
     setError(null);
@@ -35,6 +37,18 @@ export function NewBuyerDialog() {
     reset();
   }
 
+  function updateAdditionalEmail(i: number, value: string) {
+    setAdditionalEmails((prev) => {
+      const next = [...prev];
+      next[i] = value;
+      return next;
+    });
+  }
+
+  function removeAdditionalEmail(i: number) {
+    setAdditionalEmails((prev) => prev.filter((_, idx) => idx !== i));
+  }
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -42,6 +56,7 @@ export function NewBuyerDialog() {
       const result = await createBuyer({
         fullName,
         email,
+        additionalEmails: additionalEmails.filter((e) => e.trim()),
         phone: phone || undefined,
         notes: notes || undefined,
       });
@@ -101,6 +116,36 @@ export function NewBuyerDialog() {
                   className={inputCls}
                   placeholder="client@example.com"
                 />
+                {additionalEmails.map((e, i) => (
+                  <div key={i} className="flex gap-2 mt-2">
+                    <input
+                      type="email"
+                      value={e}
+                      onChange={(ev) =>
+                        updateAdditionalEmail(i, ev.target.value)
+                      }
+                      className={inputCls}
+                      placeholder="another@example.com"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeAdditionalEmail(i)}
+                      className="px-3 text-sm text-ink-muted hover:text-red-700 transition"
+                      aria-label="Remove email"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setAdditionalEmails((prev) => [...prev, ""])
+                  }
+                  className="mt-2 text-xs text-purple-deep hover:underline"
+                >
+                  + Add another email
+                </button>
               </Field>
 
               <Field label="Phone">

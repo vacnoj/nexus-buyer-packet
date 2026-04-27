@@ -109,10 +109,13 @@ export default function LoginPage() {
               <h1 className="font-display text-2xl text-center mb-2">
                 Check your email
               </h1>
-              <p className="text-sm text-ink-muted text-center mb-6 leading-relaxed">
+              <p className="text-sm text-ink-muted text-center mb-2 leading-relaxed">
                 We sent a sign-in code to{" "}
                 <strong className="text-ink">{email}</strong>. Enter it
                 below to sign in.
+              </p>
+              <p className="text-xs text-ink-muted text-center mb-6 italic">
+                Don&rsquo;t see it? Check your spam folder.
               </p>
               <form onSubmit={verifyCode} className="space-y-4">
                 <label className="block">

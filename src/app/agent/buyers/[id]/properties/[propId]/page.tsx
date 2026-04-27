@@ -11,18 +11,24 @@ export default async function PropertyEditorPage({
   const { id: buyerId, propId } = await params;
   const supabase = await createClient();
 
-  const { data: property, error } = await supabase
-    .from("properties")
-    .select("id, street, city, state, zip, packet_data, buyer_id")
-    .eq("id", propId)
-    .single();
+  const [propertyResult, buyerResult] = await Promise.all([
+    supabase
+      .from("properties")
+      .select("id, street, city, state, zip, packet_data, buyer_id")
+      .eq("id", propId)
+      .single(),
+    supabase.from("buyers").select("full_name").eq("id", buyerId).single(),
+  ]);
 
+  const { data: property, error } = propertyResult;
   if (error || !property || property.buyer_id !== buyerId) {
     notFound();
   }
 
   // Reconstruct the editor's initial state from the saved jsonb blob,
   // falling back to the address columns if the blob is missing them.
+  // Buyer name pre-populates from the buyers table on first edit; saved
+  // value (if any) wins on subsequent edits.
   const stored = (property.packet_data ?? {}) as Partial<PropertyData>;
   const initialData: Partial<PropertyData> = {
     ...stored,
@@ -30,6 +36,7 @@ export default async function PropertyEditorPage({
     city: stored.city ?? property.city ?? "",
     state: stored.state ?? property.state ?? "",
     zip: stored.zip ?? property.zip ?? "",
+    buyerName: stored.buyerName || buyerResult.data?.full_name || "",
   };
 
   return (

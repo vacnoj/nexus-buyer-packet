@@ -69,6 +69,8 @@ const DEFAULT_DATA: PropertyData = {
   parksOutdoors: "",
   commute: "",
   neighborhoodVibe: "",
+  demographics: "",
+  climate: "",
   zoning: "",
   waterSewer: "",
   heatingCooling: "",

@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AddPropertyButton } from "./_components/AddPropertyButton";
+import { PropertyCard } from "./_components/PropertyCard";
+import { BuyerEmails } from "./_components/BuyerEmails";
 
 export default async function BuyerDetailPage({
   params,
@@ -13,7 +15,9 @@ export default async function BuyerDetailPage({
 
   const { data: buyer, error: buyerError } = await supabase
     .from("buyers")
-    .select("id, full_name, email, phone, notes, created_at")
+    .select(
+      "id, full_name, email, additional_emails, phone, notes, created_at",
+    )
     .eq("id", id)
     .single();
 
@@ -41,10 +45,12 @@ export default async function BuyerDetailPage({
         <h1 className="font-display text-3xl sm:text-4xl font-semibold mb-2">
           {buyer.full_name}
         </h1>
-        <div className="text-sm text-ink-muted space-y-0.5">
-          <div>
-            <strong className="text-ink">Email:</strong> {buyer.email}
-          </div>
+        <div className="text-sm text-ink-muted space-y-2">
+          <BuyerEmails
+            buyerId={buyer.id}
+            initialEmail={buyer.email}
+            initialAdditional={buyer.additional_emails ?? []}
+          />
           {buyer.phone && (
             <div>
               <strong className="text-ink">Phone:</strong> {buyer.phone}
@@ -86,27 +92,7 @@ export default async function BuyerDetailPage({
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {properties?.map((p) => (
-            <Link
-              key={p.id}
-              href={`/agent/buyers/${buyer.id}/properties/${p.id}`}
-              className="block bg-white border border-line rounded-xl p-5 hover:border-purple/40 transition"
-            >
-              <p className="font-display text-lg font-semibold">
-                {p.street || "Untitled property"}
-              </p>
-              <p className="text-sm text-ink-muted">
-                {[p.city, p.state].filter(Boolean).join(", ")}
-                {p.zip ? ` ${p.zip}` : "—"}
-              </p>
-              <p className="text-xs text-ink-muted mt-3">
-                Updated{" "}
-                {new Date(p.updated_at).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })}
-              </p>
-            </Link>
+            <PropertyCard key={p.id} buyerId={buyer.id} property={p} />
           ))}
         </div>
       )}

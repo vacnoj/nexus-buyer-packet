@@ -69,6 +69,8 @@ export type PropertyData = {
   parksOutdoors: string;
   commute: string;
   neighborhoodVibe: string;
+  demographics: string;
+  climate: string;
 
   // Property profile (empty hides the row)
   zoning: string;
@@ -120,7 +122,7 @@ const DEFAULTS: PropertyData = {
   buyerName: "",
   agentName: "The NEXUS Team",
   agentEmail: "nikki@kw.com",
-  agentPhone: "",
+  agentPhone: "(303) 358-3537",
   brokerage: "Keller Williams DTC",
   schoolDistrict: "",
   walkability: "",
@@ -129,6 +131,8 @@ const DEFAULTS: PropertyData = {
   parksOutdoors: "",
   commute: "",
   neighborhoodVibe: "",
+  demographics: "",
+  climate: "",
   zoning: "",
   waterSewer: "",
   heatingCooling: "",
@@ -858,6 +862,22 @@ export default function PropertyEditor({
                   placeholder="Rural acreage, equestrian-friendly, mountain views"
                 />
               </Field>
+              <Field label="Demographics">
+                <input
+                  className={inputCls}
+                  value={data.demographics}
+                  onChange={(e) => update("demographics", e.target.value)}
+                  placeholder="Population 4,884 · Median income $122k · Median home value $836k"
+                />
+              </Field>
+              <Field label="Climate">
+                <input
+                  className={inputCls}
+                  value={data.climate}
+                  onChange={(e) => update("climate", e.target.value)}
+                  placeholder="~300 sunny days · 80in/yr snow · Mild summers"
+                />
+              </Field>
             </Grid>
           </details>
 
@@ -1483,6 +1503,20 @@ export function Packet({
       value: data.neighborhoodVibe,
     });
   }
+  if (data.demographics) {
+    areaCards.push({
+      icon: "👥",
+      title: "Demographics",
+      value: data.demographics,
+    });
+  }
+  if (data.climate) {
+    areaCards.push({
+      icon: "☀️",
+      title: "Climate",
+      value: data.climate,
+    });
+  }
 
   const propertyRows: PropertyRow[] = [];
   if (data.lastSalePrice > 0) {
@@ -1687,6 +1721,21 @@ export function Packet({
       </div>
 
       <div className="max-w-[920px] mx-auto px-6 sm:px-10 pb-20">
+        {/* WARM WELCOME */}
+        {data.buyerName && (
+          <section className="pt-12 pb-2">
+            <h2 className="font-display text-3xl sm:text-4xl font-semibold text-ink mb-3">
+              Welcome, {data.buyerName.split(/[\s,]/)[0]}!
+            </h2>
+            <p className="text-ink-muted leading-relaxed max-w-2xl">
+              We&rsquo;ve put together everything you need to evaluate this
+              property. Take your time exploring the details below — and use
+              the buyer checklist at the end to track what&rsquo;s left to
+              confirm before making your offer.
+            </p>
+          </section>
+        )}
+
         {/* SECTION 01: AREA OVERVIEW */}
         {areaCards.length > 0 && (
           <PacketSection number="01" title="Area Overview">
