@@ -35,7 +35,7 @@ export type PropertyData = {
   baths: string;
   sqft: string;
   yearBuilt: string;
-  areaSummary: string;
+  lotSize: string;
   coverPhoto: string;
   photos: PropertyPhoto[];
 
@@ -105,7 +105,7 @@ const DEFAULTS: PropertyData = {
   baths: "",
   sqft: "",
   yearBuilt: "",
-  areaSummary: "",
+  lotSize: "",
   coverPhoto: "",
   photos: [],
   homePrice: 0,
@@ -241,7 +241,8 @@ export default function PropertyEditor({
           baths: d.baths?.value ?? prev.baths,
           sqft: d.sqft?.value ?? prev.sqft,
           yearBuilt: d.yearBuilt?.value ?? prev.yearBuilt,
-          areaSummary: d.areaSummary?.value ?? prev.areaSummary,
+          lotSize: d.lotSize?.value ?? prev.lotSize,
+          demographics: d.demographics?.value || prev.demographics,
           homePrice: d.listPrice?.value ?? prev.homePrice,
           annualPropertyTax:
             d.annualPropertyTax?.value ?? prev.annualPropertyTax,
@@ -383,15 +384,11 @@ export default function PropertyEditor({
                 onChange={(e) => update("yearBuilt", e.target.value)}
               />
             </Field>
-            <Field
-              label="Area summary"
-              span={3}
-              hint="Brief notes on the neighborhood, schools, commute, etc."
-            >
-              <textarea
-                className={`${inputCls} h-24`}
-                value={data.areaSummary}
-                onChange={(e) => update("areaSummary", e.target.value)}
+            <Field label="Lot size" hint="Auto-filled from public records on lookup.">
+              <input
+                className={inputCls}
+                value={data.lotSize}
+                onChange={(e) => update("lotSize", e.target.value)}
               />
             </Field>
           </Grid>
@@ -811,7 +808,7 @@ export default function PropertyEditor({
                   className={inputCls}
                   value={data.schoolDistrict}
                   onChange={(e) => update("schoolDistrict", e.target.value)}
-                  placeholder="Douglas County RE-1 · Franktown Elem, Sagewood MS, Ponderosa HS"
+                  placeholder="e.g. Douglas County RE-1 · Franktown Elem, Sagewood MS, Ponderosa HS"
                 />
               </Field>
               <Field label="Walkability">
@@ -819,7 +816,7 @@ export default function PropertyEditor({
                   className={inputCls}
                   value={data.walkability}
                   onChange={(e) => update("walkability", e.target.value)}
-                  placeholder="Walk 22 · Transit 5 · Bike 12 — Car-dependent"
+                  placeholder="e.g. Walk 22, Transit 5, Bike 12. Car-dependent."
                 />
               </Field>
               <Field label="Flood zone">
@@ -827,7 +824,7 @@ export default function PropertyEditor({
                   className={inputCls}
                   value={data.floodZone}
                   onChange={(e) => update("floodZone", e.target.value)}
-                  placeholder="Zone X — Minimal risk"
+                  placeholder="e.g. Zone X. Minimal risk."
                 />
               </Field>
               <Field label="Nearby amenities">
@@ -835,7 +832,7 @@ export default function PropertyEditor({
                   className={inputCls}
                   value={data.nearbyAmenities}
                   onChange={(e) => update("nearbyAmenities", e.target.value)}
-                  placeholder="Castle Rock retail · 15 min"
+                  placeholder="e.g. Castle Rock retail, 15 min"
                 />
               </Field>
               <Field label="Parks & outdoors">
@@ -843,7 +840,7 @@ export default function PropertyEditor({
                   className={inputCls}
                   value={data.parksOutdoors}
                   onChange={(e) => update("parksOutdoors", e.target.value)}
-                  placeholder="Castlewood Canyon SP · 10 min"
+                  placeholder="e.g. Castlewood Canyon SP, 10 min"
                 />
               </Field>
               <Field label="Commute">
@@ -851,7 +848,7 @@ export default function PropertyEditor({
                   className={inputCls}
                   value={data.commute}
                   onChange={(e) => update("commute", e.target.value)}
-                  placeholder="DTC ~30 min · DIA ~45 min"
+                  placeholder="e.g. DTC ~30 min · DIA ~45 min"
                 />
               </Field>
               <Field label="Neighborhood vibe">
@@ -859,7 +856,7 @@ export default function PropertyEditor({
                   className={inputCls}
                   value={data.neighborhoodVibe}
                   onChange={(e) => update("neighborhoodVibe", e.target.value)}
-                  placeholder="Rural acreage, equestrian-friendly, mountain views"
+                  placeholder="e.g. Rural acreage, equestrian-friendly, mountain views"
                 />
               </Field>
               <Field label="Demographics">
@@ -867,7 +864,7 @@ export default function PropertyEditor({
                   className={inputCls}
                   value={data.demographics}
                   onChange={(e) => update("demographics", e.target.value)}
-                  placeholder="Population 4,884 · Median income $122k · Median home value $836k"
+                  placeholder="Auto-filled on lookup. e.g. Population 4,884 · Median income $122k"
                 />
               </Field>
               <Field label="Climate">
@@ -891,7 +888,7 @@ export default function PropertyEditor({
                   className={inputCls}
                   value={data.zoning}
                   onChange={(e) => update("zoning", e.target.value)}
-                  placeholder="A-1 Agricultural"
+                  placeholder="e.g. A-1 Agricultural"
                 />
               </Field>
               <Field label="Water & sewer">
@@ -899,7 +896,7 @@ export default function PropertyEditor({
                   className={inputCls}
                   value={data.waterSewer}
                   onChange={(e) => update("waterSewer", e.target.value)}
-                  placeholder="Well · Septic"
+                  placeholder="e.g. Well, Septic"
                 />
               </Field>
               <Field label="Heating & cooling">
@@ -907,7 +904,7 @@ export default function PropertyEditor({
                   className={inputCls}
                   value={data.heatingCooling}
                   onChange={(e) => update("heatingCooling", e.target.value)}
-                  placeholder="Forced air gas · Central A/C"
+                  placeholder="e.g. Forced air gas, Central A/C"
                 />
               </Field>
               <Field label="Special tax / metro district">
@@ -923,7 +920,7 @@ export default function PropertyEditor({
                   className={inputCls}
                   value={data.assignedSchools}
                   onChange={(e) => update("assignedSchools", e.target.value)}
-                  placeholder="Franktown Elem · Sagewood MS · Ponderosa HS"
+                  placeholder="e.g. Franktown Elem, Sagewood MS, Ponderosa HS"
                 />
               </Field>
             </Grid>
@@ -970,7 +967,7 @@ export default function PropertyEditor({
               className={`${inputCls} h-28`}
               value={data.agentNotes}
               onChange={(e) => update("agentNotes", e.target.value)}
-              placeholder="Recent updates, condition notes, unique features, things to flag for the buyer..."
+              placeholder="e.g. Recent updates, condition notes, unique features, things to flag for the buyer..."
             />
           </Field>
         </Section>
@@ -1100,7 +1097,7 @@ function LookupStatus({
   if (state.found) {
     return (
       <span className="text-sm text-purple-deep bg-purple-soft rounded px-2 py-1">
-        Found data — review the prefilled fields below.
+        Found data. Review the prefilled fields below.
       </span>
     );
   }
@@ -1325,7 +1322,7 @@ const CHECKLIST: ChecklistGroup[] = [
       },
       {
         text: "Confirm flood zone status & flood insurance cost (if applicable)",
-        note: "Check FEMA flood maps. If in a flood zone, get a separate flood insurance quote — lender will require it.",
+        note: "Check FEMA flood maps. If in a flood zone, get a separate flood insurance quote. Lender will require it.",
       },
     ],
   },
@@ -1342,7 +1339,7 @@ const CHECKLIST: ChecklistGroup[] = [
       },
       {
         text: "Check for Special Tax / Metro District",
-        note: "Metro districts add a separate mill levy on top of regular property taxes — can add hundreds per year. Ask for the public improvement fee (PIF) disclosure if applicable.",
+        note: "Metro districts add a separate mill levy on top of regular property taxes. Can add hundreds per year. Ask for the public improvement fee (PIF) disclosure if applicable.",
       },
       {
         text: "Understand closing cost estimates",
@@ -1524,7 +1521,7 @@ export function Packet({
       icon: "🏷️",
       label: "Last Market Sale",
       value: `${formatPriceCompact(data.lastSalePrice)}${
-        data.lastSaleDate ? ` — ${formatSaleDate(data.lastSaleDate)}` : ""
+        data.lastSaleDate ? ` · ${formatSaleDate(data.lastSaleDate)}` : ""
       }`,
       sub:
         data.homePrice > 0
@@ -1725,13 +1722,13 @@ export function Packet({
         {data.buyerName && (
           <section className="pt-12 pb-2">
             <h2 className="font-display text-3xl sm:text-4xl font-semibold text-ink mb-3">
-              Welcome, {data.buyerName.split(/[\s,]/)[0]}!
+              Welcome, {data.buyerName}!
             </h2>
             <p className="text-ink-muted leading-relaxed max-w-2xl">
               We&rsquo;ve put together everything you need to evaluate this
-              property. Take your time exploring the details below — and use
-              the buyer checklist at the end to track what&rsquo;s left to
-              confirm before making your offer.
+              property. Take your time exploring the details below. Use the
+              buyer checklist at the end to track what&rsquo;s left to confirm
+              before making your offer.
             </p>
           </section>
         )}
@@ -1762,11 +1759,6 @@ export function Packet({
                 </div>
               ))}
             </div>
-            {data.areaSummary && (
-              <div className="mt-6 bg-white border border-line rounded-lg p-5 text-sm leading-relaxed text-ink/85">
-                {data.areaSummary}
-              </div>
-            )}
           </PacketSection>
         )}
 
@@ -1798,11 +1790,16 @@ export function Packet({
           )}
 
           {/* Specs */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 border border-line rounded-lg overflow-hidden mb-6 bg-white">
+          <div className={`grid grid-cols-2 ${data.lotSize ? "sm:grid-cols-5" : "sm:grid-cols-4"} border border-line rounded-lg overflow-hidden mb-6 bg-white`}>
             <Spec label="Beds" value={data.beds || "—"} />
             <Spec label="Baths" value={data.baths || "—"} />
             <Spec label="Sq Ft" value={data.sqft ? Number(data.sqft).toLocaleString() : "—"} />
-            <Spec label="Year Built" value={data.yearBuilt || "—"} last />
+            <Spec
+              label="Year Built"
+              value={data.yearBuilt || "—"}
+              last={!data.lotSize}
+            />
+            {data.lotSize && <Spec label="Lot Size" value={data.lotSize} last />}
           </div>
 
           {/* Detail rows */}
@@ -2010,13 +2007,13 @@ export function Packet({
                   <strong className="text-ink">Tax:</strong>{" "}
                   {data.taxSource === "unavailable"
                     ? "Prior-year tax not available; verify with county assessor."
-                    : `${formatCurrency(data.annualPropertyTax ?? 0)}/yr — ${
+                    : `${formatCurrency(data.annualPropertyTax ?? 0)}/yr · ${
                         taxLabelMap[data.taxSource]
                       }${data.taxYear ? ` (${data.taxYear})` : ""}.`}
                 </div>
                 <div className="mt-1">
                   <strong className="text-ink">Insurance:</strong>{" "}
-                  {formatCurrency(effectiveInsurance)}/yr — {insuranceNote}
+                  {formatCurrency(effectiveInsurance)}/yr · {insuranceNote}
                 </div>
               </div>
             </div>

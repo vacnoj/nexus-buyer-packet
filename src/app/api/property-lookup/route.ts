@@ -40,7 +40,8 @@ export type LookupResponse = {
     taxYear?: LookupField<string>;
     annualInsurance?: LookupField<number>;
     monthlyHoa?: LookupField<number>;
-    areaSummary?: LookupField<string>;
+    lotSize?: LookupField<string>;
+    demographics?: LookupField<string>;
     lastSalePrice?: LookupField<number>;
     lastSaleDate?: LookupField<string>;
     saleHistory?: LookupField<SaleHistoryEntry[]>;
@@ -128,13 +129,13 @@ async function fetchCensusZipDemographics(zip: string): Promise<string | null> {
       parts.push(`Population ~${pop.toLocaleString()}`);
     }
     if (Number.isFinite(medIncome) && medIncome > 0) {
-      parts.push(`median household income $${medIncome.toLocaleString()}`);
+      parts.push(`Median income $${medIncome.toLocaleString()}`);
     }
     if (Number.isFinite(medHomeVal) && medHomeVal > 0) {
-      parts.push(`median home value $${medHomeVal.toLocaleString()}`);
+      parts.push(`Median home value $${medHomeVal.toLocaleString()}`);
     }
     if (parts.length === 0) return null;
-    return `ZIP ${zip} (Census ACS 2022): ${parts.join("; ")}.`;
+    return parts.join(" · ");
   } catch {
     return null;
   }
@@ -279,28 +280,18 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const summaryParts: string[] = [];
-  if (
-    rec.subdivision &&
-    !/metes\s*and\s*bounds/i.test(rec.subdivision)
-  ) {
-    summaryParts.push(`Subdivision: ${rec.subdivision}.`);
-  }
-  if (rec.county) summaryParts.push(`${rec.county} County.`);
-  if (rec.lotSize) {
+  if (rec.lotSize && rec.lotSize > 0) {
     const acres = rec.lotSize / 43560;
-    summaryParts.push(
-      `Lot size: ${rec.lotSize.toLocaleString()} sq ft (${acres.toFixed(2)} acres).`,
-    );
+    const formatted =
+      acres >= 0.1
+        ? `${acres.toFixed(2)} acres (${rec.lotSize.toLocaleString()} sq ft)`
+        : `${rec.lotSize.toLocaleString()} sq ft`;
+    data.lotSize = { value: formatted, source: "public-records" };
   }
-  const censusLine = await fetchCensusZipDemographics(body.zip);
-  if (censusLine) summaryParts.push(censusLine);
 
-  if (summaryParts.length > 0) {
-    data.areaSummary = {
-      value: summaryParts.join(" "),
-      source: "public-records",
-    };
+  const demoLine = await fetchCensusZipDemographics(body.zip);
+  if (demoLine) {
+    data.demographics = { value: demoLine, source: "census" };
   }
 
   const messageBits = ["Property record found via public records (RentCast)."];

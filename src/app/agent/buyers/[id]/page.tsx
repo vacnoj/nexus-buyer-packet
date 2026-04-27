@@ -70,7 +70,7 @@ export default async function BuyerDetailPage({
             Properties
           </p>
           <h2 className="font-display text-2xl font-semibold">
-            Packets for {buyer.full_name.split(" ")[0]}
+            Packets for {buyer.full_name}
           </h2>
           <p className="text-ink-muted text-sm mt-1">
             {properties?.length ?? 0} packet
@@ -86,7 +86,7 @@ export default async function BuyerDetailPage({
           <h3 className="font-display text-xl mb-2">No properties yet</h3>
           <p className="text-ink-muted text-sm max-w-sm mx-auto">
             Click <strong className="text-ink">+ Add property</strong> to start
-            a new packet for {buyer.full_name.split(" ")[0]}.
+            a new packet for {buyer.full_name}.
           </p>
         </div>
       ) : (

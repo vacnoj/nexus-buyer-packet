@@ -17,7 +17,7 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Buyer's Packet — The NEXUS Team",
+  title: "Buyer's Packet · The NEXUS Team",
   description: "Generate a buyer's packet for a property offer",
 };
 

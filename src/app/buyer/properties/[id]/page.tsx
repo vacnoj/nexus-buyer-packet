@@ -43,7 +43,7 @@ const DEFAULT_DATA: PropertyData = {
   baths: "",
   sqft: "",
   yearBuilt: "",
-  areaSummary: "",
+  lotSize: "",
   coverPhoto: "",
   photos: [],
   homePrice: 0,

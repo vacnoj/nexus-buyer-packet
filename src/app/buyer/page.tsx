@@ -12,7 +12,7 @@ export default async function BuyerDashboard() {
     supabase.from("buyers").select("full_name").maybeSingle(),
   ]);
 
-  const firstName = buyer?.full_name?.split(/[\s,]/)[0];
+  const fullName = buyer?.full_name;
   const propertyCount = properties?.length ?? 0;
 
   return (
@@ -21,7 +21,7 @@ export default async function BuyerDashboard() {
         Your packets
       </p>
       <h1 className="font-display text-3xl sm:text-4xl font-semibold mb-2">
-        {firstName ? `Welcome, ${firstName}!` : "Welcome!"}
+        {fullName ? `Welcome, ${fullName}!` : "Welcome!"}
       </h1>
       <p className="text-ink-muted mb-8 leading-relaxed max-w-2xl">
         {propertyCount === 0
