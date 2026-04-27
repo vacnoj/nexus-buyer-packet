@@ -245,6 +245,10 @@ export default function PropertyEditor({
           yearBuilt: d.yearBuilt?.value ?? prev.yearBuilt,
           lotSize: d.lotSize?.value ?? prev.lotSize,
           demographics: d.demographics?.value || prev.demographics,
+          floodZone: d.floodZone?.value || prev.floodZone,
+          nearbyAmenities: d.nearbyAmenities?.value || prev.nearbyAmenities,
+          parksOutdoors: d.parksOutdoors?.value || prev.parksOutdoors,
+          commute: d.commute?.value || prev.commute,
           homePrice: d.listPrice?.value ?? prev.homePrice,
           annualPropertyTax:
             d.annualPropertyTax?.value ?? prev.annualPropertyTax,
