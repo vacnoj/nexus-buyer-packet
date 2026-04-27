@@ -180,6 +180,12 @@ export default function PropertyEditor({
     | { status: "done"; message?: string; found: boolean }
     | { status: "error"; message: string }
   >({ status: "idle" });
+  const [enrichState, setEnrichState] = useState<
+    | { status: "idle" }
+    | { status: "loading" }
+    | { status: "done"; filled: number }
+    | { status: "error"; message: string }
+  >({ status: "idle" });
 
   async function handleSave() {
     if (!onSave) return;
@@ -285,6 +291,84 @@ export default function PropertyEditor({
     }
   }
 
+  async function enrichWithAI() {
+    setEnrichState({ status: "loading" });
+    try {
+      const res = await fetch("/api/enrich", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          address: {
+            street: data.street,
+            city: data.city,
+            state: data.state,
+            zip: data.zip,
+          },
+          knownData: {
+            beds: data.beds,
+            baths: data.baths,
+            sqft: data.sqft,
+            yearBuilt: data.yearBuilt,
+            lotSize: data.lotSize,
+            demographics: data.demographics,
+            floodZone: data.floodZone,
+            nearbyAmenities: data.nearbyAmenities,
+            parksOutdoors: data.parksOutdoors,
+            commute: data.commute,
+            schoolDistrict: data.schoolDistrict,
+            walkability: data.walkability,
+            climate: data.climate,
+            neighborhoodVibe: data.neighborhoodVibe,
+            assignedSchools: data.assignedSchools,
+            agentNotes: data.agentNotes,
+          },
+        }),
+      });
+      const json = await res.json();
+      if (!json.ok) {
+        setEnrichState({ status: "error", message: json.error });
+        return;
+      }
+      const filled = json.data;
+      let count = 0;
+      setData((prev) => {
+        const next = { ...prev };
+        // Only fill empty fields. Preserve anything the agent already wrote.
+        if (!prev.schoolDistrict && filled.schoolDistrict) {
+          next.schoolDistrict = filled.schoolDistrict;
+          count++;
+        }
+        if (!prev.walkability && filled.walkability) {
+          next.walkability = filled.walkability;
+          count++;
+        }
+        if (!prev.climate && filled.climate) {
+          next.climate = filled.climate;
+          count++;
+        }
+        if (!prev.neighborhoodVibe && filled.neighborhoodVibe) {
+          next.neighborhoodVibe = filled.neighborhoodVibe;
+          count++;
+        }
+        if (!prev.assignedSchools && filled.assignedSchools) {
+          next.assignedSchools = filled.assignedSchools;
+          count++;
+        }
+        if (!prev.agentNotes && filled.agentNotes) {
+          next.agentNotes = filled.agentNotes;
+          count++;
+        }
+        return next;
+      });
+      setEnrichState({ status: "done", filled: count });
+    } catch (err) {
+      setEnrichState({
+        status: "error",
+        message: err instanceof Error ? err.message : "Enrich failed",
+      });
+    }
+  }
+
   if (view === "packet") {
     return (
       <Packet
@@ -356,7 +440,21 @@ export default function PropertyEditor({
                 ? "Looking up…"
                 : "Look up property"}
             </button>
+            <button
+              className="px-5 py-2 rounded-md bg-orange text-white font-medium hover:bg-orange-deep transition disabled:opacity-50 inline-flex items-center gap-2"
+              disabled={
+                enrichState.status === "loading" || !data.street || !data.zip
+              }
+              onClick={enrichWithAI}
+              title="Use AI to fill school district, walkability, climate, neighborhood vibe, and agent notes"
+            >
+              <span aria-hidden>✨</span>
+              {enrichState.status === "loading"
+                ? "Enriching…"
+                : "Enrich with AI"}
+            </button>
             <LookupStatus state={lookupState} />
+            <EnrichStatus state={enrichState} />
           </div>
         </Section>
 
@@ -1125,6 +1223,40 @@ function LookupStatus({
   return (
     <span className="text-sm text-ink-muted bg-cream-muted border border-line rounded px-2 py-1">
       {state.message ?? "No data found. Fill the fields manually."}
+    </span>
+  );
+}
+
+function EnrichStatus({
+  state,
+}: {
+  state:
+    | { status: "idle" }
+    | { status: "loading" }
+    | { status: "done"; filled: number }
+    | { status: "error"; message: string };
+}) {
+  if (state.status === "idle") return null;
+  if (state.status === "loading") {
+    return <span className="text-sm text-ink-muted">Asking Claude…</span>;
+  }
+  if (state.status === "error") {
+    return (
+      <span className="text-sm text-red-700 bg-red-50 border border-red-200 rounded px-2 py-1">
+        AI error: {state.message}
+      </span>
+    );
+  }
+  if (state.filled === 0) {
+    return (
+      <span className="text-sm text-ink-muted bg-cream-muted border border-line rounded px-2 py-1">
+        Nothing to fill. Verify Claude&rsquo;s output by reading the buyer summary fields.
+      </span>
+    );
+  }
+  return (
+    <span className="text-sm text-orange-deep bg-orange-soft rounded px-2 py-1">
+      Filled {state.filled} field{state.filled === 1 ? "" : "s"}. Verify before saving.
     </span>
   );
 }
