@@ -76,6 +76,11 @@ type RentCastProperty = {
   history?: Record<string, RentCastHistoryEntry>;
 };
 
+// Local file cache to avoid burning RentCast quota during dev.
+// Disabled in production (Vercel filesystem is read-only) — writes would
+// throw EROFS and crash the route. Reads/writes are also wrapped in
+// try/catch so any cache failure stays soft.
+const CACHE_ENABLED = process.env.NODE_ENV !== "production";
 const CACHE_DIR = path.join(process.cwd(), ".cache");
 const CACHE_FILE = path.join(CACHE_DIR, "property-lookup.json");
 
@@ -86,6 +91,7 @@ function cacheKey(req: LookupRequest): string {
 }
 
 async function readCache(): Promise<CacheShape> {
+  if (!CACHE_ENABLED) return {};
   try {
     const raw = await fs.readFile(CACHE_FILE, "utf8");
     return JSON.parse(raw) as CacheShape;
@@ -95,8 +101,13 @@ async function readCache(): Promise<CacheShape> {
 }
 
 async function writeCache(cache: CacheShape): Promise<void> {
-  await fs.mkdir(CACHE_DIR, { recursive: true });
-  await fs.writeFile(CACHE_FILE, JSON.stringify(cache, null, 2), "utf8");
+  if (!CACHE_ENABLED) return;
+  try {
+    await fs.mkdir(CACHE_DIR, { recursive: true });
+    await fs.writeFile(CACHE_FILE, JSON.stringify(cache, null, 2), "utf8");
+  } catch {
+    // Cache failure is non-fatal — just lose the speedup for this run.
+  }
 }
 
 async function fetchCensusZipDemographics(zip: string): Promise<string | null> {
