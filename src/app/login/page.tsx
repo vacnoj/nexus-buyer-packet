@@ -76,7 +76,7 @@ export default function LoginPage() {
             <>
               <h1 className="font-display text-2xl text-center mb-2">Sign in</h1>
               <p className="text-sm text-ink-muted text-center mb-6">
-                Enter your email and we&rsquo;ll send you a 6-digit code.
+                Enter your email and we&rsquo;ll send you a sign-in code.
               </p>
               <form onSubmit={sendCode} className="space-y-4">
                 <label className="block">
@@ -110,7 +110,7 @@ export default function LoginPage() {
                 Check your email
               </h1>
               <p className="text-sm text-ink-muted text-center mb-6 leading-relaxed">
-                We sent a 6-digit code to{" "}
+                We sent a sign-in code to{" "}
                 <strong className="text-ink">{email}</strong>. Enter it
                 below to sign in.
               </p>
@@ -126,19 +126,19 @@ export default function LoginPage() {
                     autoComplete="one-time-code"
                     autoFocus
                     required
-                    maxLength={6}
+                    maxLength={8}
                     value={code}
                     onChange={(e) =>
-                      setCode(e.target.value.replace(/\D/g, "").slice(0, 6))
+                      setCode(e.target.value.replace(/\D/g, "").slice(0, 8))
                     }
-                    className={`${inputCls} text-center font-display text-2xl tracking-[0.5em] tabular-nums`}
-                    placeholder="000000"
+                    className={`${inputCls} text-center font-display text-2xl tracking-[0.3em] tabular-nums`}
+                    placeholder="00000000"
                   />
                 </label>
                 {error && <ErrorBox>{error}</ErrorBox>}
                 <button
                   type="submit"
-                  disabled={loading || code.length !== 6}
+                  disabled={loading || code.length < 6}
                   className={primaryBtnCls}
                 >
                   {loading ? "Verifying…" : "Sign in"}
