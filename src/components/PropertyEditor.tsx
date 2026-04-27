@@ -36,6 +36,7 @@ export type PropertyData = {
   sqft: string;
   yearBuilt: string;
   lotSize: string;
+  listingUrl: string;
   coverPhoto: string;
   photos: PropertyPhoto[];
 
@@ -106,6 +107,7 @@ const DEFAULTS: PropertyData = {
   sqft: "",
   yearBuilt: "",
   lotSize: "",
+  listingUrl: "",
   coverPhoto: "",
   photos: [],
   homePrice: 0,
@@ -569,6 +571,21 @@ export default function PropertyEditor({
               large in the packet.
             </p>
           )}
+
+          <div className="mt-6 pt-6 border-t border-line">
+            <Field
+              label="Listing URL"
+              hint="Adds a 'View listing' button to the buyer's packet."
+            >
+              <input
+                type="url"
+                className={inputCls}
+                value={data.listingUrl}
+                onChange={(e) => update("listingUrl", e.target.value)}
+                placeholder="https://www.zillow.com/homedetails/..."
+              />
+            </Field>
+          </div>
         </Section>
 
         <Section title="Offer & loan" accent="purple">
@@ -1786,6 +1803,27 @@ export function Packet({
           ) : (
             <div className="bg-warm border border-dashed border-line rounded-lg h-56 flex items-center justify-center text-ink-muted text-xs tracking-[1px] mb-6">
               [ Property photo placeholder ]
+            </div>
+          )}
+
+          {/* Listing link */}
+          {data.listingUrl && (
+            <div className="mb-6 -mt-2 flex justify-center">
+              <a
+                href={data.listingUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md bg-purple text-white text-sm font-medium hover:bg-purple-deep transition no-underline"
+              >
+                {/Zillow/i.test(data.listingUrl)
+                  ? "View on Zillow"
+                  : /Realtor/i.test(data.listingUrl)
+                    ? "View on Realtor.com"
+                    : /Redfin/i.test(data.listingUrl)
+                      ? "View on Redfin"
+                      : "View full listing"}
+                <span aria-hidden>↗</span>
+              </a>
             </div>
           )}
 
